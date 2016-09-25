@@ -41816,7 +41816,6 @@ renderer.render( scene, camera );
 
 
 (function animate() {
-
     requestAnimationFrame( animate );
 
     mesh.rotation.x += 0.01;

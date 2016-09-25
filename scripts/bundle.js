@@ -41795,7 +41795,6 @@
 var THREE = require('./lib/three.js');
 
 var scene, camera, geometry, material, mesh, renderer;
-var a = 2;
 
 scene = new THREE.Scene();
 
@@ -41814,5 +41813,17 @@ renderer.setSize( window.innerWidth, window.innerHeight );
 document.body.appendChild( renderer.domElement );
 
 renderer.render( scene, camera );
+
+
+(function animate() {
+
+    requestAnimationFrame( animate );
+
+    mesh.rotation.x += 0.01;
+    mesh.rotation.y += 0.02;
+
+    renderer.render( scene, camera );
+
+})();
 
 },{"./lib/three.js":1}]},{},[2,1]);

@@ -1,5 +1,6 @@
 var THREE = require('./lib/three.js');
 
+
 var scene, camera, renderer;
 
 scene = new THREE.Scene();
@@ -63,8 +64,8 @@ function handleTouchStart(e) {
 }
 
 function handleTouchEnd(e) {
-    //totally won't fall over with multiple touches.... totally
-    current = nontouchcolor;
+    if (e.changedTouches[0].identifier === 0)
+        current = nontouchcolor;
 }
 
 (function animate() {

@@ -13,23 +13,22 @@ var width = 350;
 var height = 200;
 var gap = 20;
 
-
 var geom1 = new THREE.CylinderGeometry(width, width, height, sides);
-var mat1 = new THREE.MeshPhongMaterial( { color: 0xee0000 } );
+var mat1 = new THREE.MeshPhongMaterial( { color: 0xee0000, shading: THREE.FlatShading } );
 var mesh1 = new THREE.Mesh( geom1, mat1 );
 mesh1.position.y += height + gap;
 
 var geom2 = new THREE.CylinderGeometry(width, width, height, sides);
-var mat2 = new THREE.MeshPhongMaterial( { color: 0x00ee00 } );
+var mat2 = new THREE.MeshPhongMaterial( { color: 0x00ee00, shading: THREE.FlatShading } );
 var mesh2 = new THREE.Mesh( geom2, mat2 );
 
 var geom3 = new THREE.CylinderGeometry(width, width, height, sides);
-var mat3 = new THREE.MeshPhongMaterial( { color: 0x0000ee } );
+var mat3 = new THREE.MeshPhongMaterial( { color: 0x0000ee, shading: THREE.FlatShading } );
 var mesh3 = new THREE.Mesh( geom3, mat3 );
 mesh3.position.y -= height + gap;
 
 var directionalLight = new THREE.DirectionalLight( 0xffffff, 0.6 );
-directionalLight.position.set( 0, 1, 10 );
+directionalLight.position.set( 0, 0, 10 );
 
 var current_shape = mesh3;
 
@@ -38,7 +37,7 @@ scene.add( mesh2 );
 scene.add( mesh3 );
 scene.add( directionalLight );
 
-renderer = new THREE.WebGLRenderer();
+renderer = new THREE.WebGLRenderer({antialias : true});
 renderer.setSize( window.innerWidth, window.innerHeight );
 
 document.body.appendChild( renderer.domElement );

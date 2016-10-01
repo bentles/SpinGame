@@ -41802,7 +41802,7 @@ camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight
 camera.position.z = 1000;
 
 var sides = 6;
-var width = 400;
+var width = 200;
 var height = 200;
 var gap = 20;
 

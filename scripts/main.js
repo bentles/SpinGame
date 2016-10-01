@@ -1,17 +1,27 @@
 var THREE = require('./lib/three.js');
 
-var scene, camera, geometry, material, mesh, renderer;
+var scene, camera, renderer;
 
 scene = new THREE.Scene();
 
 camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 10000 );
 camera.position.z = 1000;
 
-geometry = new THREE.BoxGeometry( 200, 200, 200 );
-material = new THREE.MeshBasicMaterial( { color: 0xff0000, wireframe: true } );
+var geom1 = new THREE.CylinderGeometry(500, 500, 200, 6);
+var mat1 = new THREE.MeshBasicMaterial( { color: 0xff0000, wireframe: true } );
+var mesh1 = new THREE.Mesh( geom1, mat1 );
+mesh1.position.y += 220;
+var geom2 = new THREE.CylinderGeometry(500, 500, 200, 6);
+var mat2 = new THREE.MeshBasicMaterial( { color: 0x00ff00, wireframe: true } );
+var mesh2 = new THREE.Mesh( geom2, mat2 );
+var geom3 = new THREE.CylinderGeometry(500, 500, 200, 6);
+var mat3 = new THREE.MeshBasicMaterial( { color: 0x0000ff, wireframe: true } );
+var mesh3 = new THREE.Mesh( geom3, mat3 );
+mesh3.position.y -= 220;
 
-mesh = new THREE.Mesh( geometry, material );
-scene.add( mesh );
+scene.add( mesh1 );
+scene.add( mesh2 );
+scene.add( mesh3 );
 
 renderer = new THREE.WebGLRenderer();
 renderer.setSize( window.innerWidth, window.innerHeight );
@@ -24,8 +34,10 @@ renderer.render( scene, camera );
 (function animate() {
     requestAnimationFrame( animate );
 
-    mesh.rotation.x += 0.01;
-    mesh.rotation.y += 0.02;
+   // mesh.rotation.x += 0.01;
+    mesh1.rotation.y += 0.02;
+    mesh2.rotation.y -= 0.02;
+    mesh3.rotation.y += 0.02;    
 
     renderer.render( scene, camera );
 

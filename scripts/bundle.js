@@ -41851,8 +41851,11 @@ document.addEventListener('touchend', handleTouchEnd, false);
 document.addEventListener('touchmove', handleTouchMove, false);
 
 function handleTouchStart(e) {
-    var x = lastKnownTouchX = 2 * (e.touches[0].clientX / window.innerWidth) - 1;
-    var y = lastKnownTouchY = 1 - 2 * (e.touches[0].clientY / window.innerHeight);
+    lastKnownTouchY = e.touches[0].clientY;
+    lastKnownTouchX = e.touches[0].clientX;
+    
+    var x = 2 * (e.touches[0].clientX / window.innerWidth) - 1;
+    var y = 1 - 2 * (e.touches[0].clientY / window.innerHeight);
 
     var vector = new THREE.Vector3(x, y, 1).unproject(camera);
 
@@ -41869,7 +41872,8 @@ function handleTouchMove(e) {
     var touchZero = findTouchZero(e.touches);
     if (touchZero) {
         velocities[current_shape.uuid] += touchZero.clientX - lastKnownTouchX;
-        console.log(velocities[current_shape.uuid]);
+        //console.log(velocities[current_shape.uuid]);
+        console.log(touchZero.clientX);
         
         lastKnownTouchX = touchZero.clientX;
         lastKnownTouchY = touchZero.clientY;  
@@ -41890,22 +41894,22 @@ function handleTouchEnd(e) {
     //until I know what I want to do with multiple touches let's pretend others don't exist :)
     var touchZero = findTouchZero(e.changedTouches);
     
-    if (touchZero) {
-        current_shape.material.wireframe = false;      
+    if (touchZero && current_shape) {
+        current_shape.material.wireframe = false;
     }
 }
 
 (function animate() {
     requestAnimationFrame( animate );
 
-    //let's just say 0.5 radians is the width of the screen
-    mesh1.rotation.y += (velocities[mesh1.uuid] / window.innerWidth) * 0.2; 
-    mesh2.rotation.y += (velocities[mesh2.uuid] / window.innerWidth) * 0.2; 
-    mesh3.rotation.y += (velocities[mesh3.uuid] / window.innerWidth) * 0.2;
+    mesh1.rotation.y += (velocities[mesh1.uuid] / window.innerWidth) * 0.3; 
+    mesh2.rotation.y += (velocities[mesh2.uuid] / window.innerWidth) * 0.3; 
+    mesh3.rotation.y += (velocities[mesh3.uuid] / window.innerWidth) * 0.3;
 
-    velocities[mesh1.uuid] /= 1.1;
-    velocities[mesh2.uuid] /= 1.1;
-    velocities[mesh3.uuid] /= 1.1;
+    //slow down sonny
+    velocities[mesh1.uuid] *= 0.9;
+    velocities[mesh2.uuid] *= 0.9;
+    velocities[mesh3.uuid] *= 0.9;
     
     renderer.render( scene, camera );
 

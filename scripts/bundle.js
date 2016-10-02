@@ -41793,8 +41793,6 @@
 })));
 },{}],2:[function(require,module,exports){
 var THREE = require('./lib/three.js');
-
-
 var scene, camera, renderer;
 
 scene = new THREE.Scene();
@@ -41821,10 +41819,19 @@ var mat3 = new THREE.MeshPhongMaterial( { color: 0x0000ee, shading: THREE.FlatSh
 var mesh3 = new THREE.Mesh( geom3, mat3 );
 mesh3.position.y -= height + gap;
 
+//use the identifier on the mesh to get from the object to their velocities
+var velocities = {};
+velocities[mesh1.uuid] = 0;
+velocities[mesh2.uuid] = 0;
+velocities[mesh3.uuid] = 0;
+
 var directionalLight = new THREE.DirectionalLight( 0xffffff, 0.6 );
 directionalLight.position.set( 0, 0, 10 );
 
-var current_shape = mesh3;
+var lastKnownTouchX = undefined;
+var lastKnownTouchY = undefined;
+
+var current_shape = undefined;
 
 scene.add( mesh1 );
 scene.add( mesh2 );
@@ -41841,39 +41848,60 @@ renderer.render( scene, camera );
 
 document.addEventListener('touchstart', handleTouchStart, false);
 document.addEventListener('touchend', handleTouchEnd, false);
-//document.addEventListener('mousedown', handleTouchStart, false);
+document.addEventListener('touchmove', handleTouchMove, false);
 
 function handleTouchStart(e) {
-    var x = 2 * (e.touches[0].clientX / window.innerWidth) - 1;
-    var y = 1 - 2 * (e.touches[0].clientY / window.innerHeight);
+    var x = lastKnownTouchX = 2 * (e.touches[0].clientX / window.innerWidth) - 1;
+    var y = lastKnownTouchY = 1 - 2 * (e.touches[0].clientY / window.innerHeight);
 
     var vector = new THREE.Vector3(x, y, 1).unproject(camera);
 
     var raycaster = new THREE.Raycaster(camera.position, vector.sub(camera.position).normalize());
     var intersects = raycaster.intersectObjects(scene.children);
-
-    console.log(intersects);
     
     if (intersects.length > 0) {
-        current_shape = intersects[0];
-        current_shape.object.material.wireframe = true;
+        current_shape = intersects[0].object;
+        //current_shape.material.wireframe = true;
     }
+}
+
+function handleTouchMove(e) {
+    var touchZero = findTouchZero(e.touches);
+    if (touchZero) {
+        velocities[current_shape.uuid] += touchZero.clientX - lastKnownTouchX;
+        console.log(velocities[current_shape.uuid]);
+        
+        lastKnownTouchX = touchZero.clientX;
+        lastKnownTouchY = touchZero.clientY;  
+    }
+}
+
+function findTouchZero(touches) {
+    //TODO: is this really how you do this though?
+    for(var i = 0; i < touches.length; i++) {
+        if (touches[i].identifier === 0)
+            return touches[i];
+    }
+
+    return undefined;
 }
 
 function handleTouchEnd(e) {
     //until I know what I want to do with multiple touches let's pretend others don't exist :)
-    if (e.changedTouches[0].identifier === 0) {
-        current_shape.object.material.wireframe = false;      
+    var touchZero = findTouchZero(e.changedTouches);
+    
+    if (touchZero) {
+        current_shape.material.wireframe = false;      
     }
 }
 
 (function animate() {
     requestAnimationFrame( animate );
 
-    mesh1.rotation.y += 0.02;
-    mesh2.rotation.y -= 0.02;
-    mesh3.rotation.y += 0.02;
-  
+    mesh1.rotation.y = velocities[mesh1.uuid];
+    mesh2.rotation.y = velocities[mesh2.uuid];
+    mesh3.rotation.y = velocities[mesh3.uuid];
+    
     renderer.render( scene, camera );
 
 })();

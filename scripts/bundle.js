@@ -41838,7 +41838,7 @@ scene.add( mesh2 );
 scene.add( mesh3 );
 scene.add( directionalLight );
 
-renderer = new THREE.WebGLRenderer({antialias : true});
+renderer = new THREE.WebGLRenderer(/*{antialias : true}*/);
 renderer.setSize( window.innerWidth, window.innerHeight );
 
 document.body.appendChild( renderer.domElement );

@@ -41902,9 +41902,9 @@ function handleTouchEnd(e) {
 (function animate() {
     requestAnimationFrame( animate );
 
-    mesh1.rotation.y += (velocities[mesh1.uuid] / window.innerWidth) * 0.3; 
-    mesh2.rotation.y += (velocities[mesh2.uuid] / window.innerWidth) * 0.3; 
-    mesh3.rotation.y += (velocities[mesh3.uuid] / window.innerWidth) * 0.3;
+    mesh1.rotation.y += (velocities[mesh1.uuid] / window.innerWidth) * 0.5; 
+    mesh2.rotation.y += (velocities[mesh2.uuid] / window.innerWidth) * 0.5; 
+    mesh3.rotation.y += (velocities[mesh3.uuid] / window.innerWidth) * 0.5;
 
     //slow down sonny
     velocities[mesh1.uuid] *= 0.9;

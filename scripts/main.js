@@ -12,16 +12,16 @@ var height = 200;
 var gap = 20;
 
 var geom1 = new THREE.CylinderGeometry(width, width, height, sides);
-var mat1 = new THREE.MeshPhongMaterial( { color: 0xee0000, shading: THREE.FlatShading } );
+var mat1 = new THREE.MeshStandardMaterial( { color: 0xee0000, shading: THREE.FlatShading /* , shininess: 0, specular: 0*/ } );
 var mesh1 = new THREE.Mesh( geom1, mat1 );
 mesh1.position.y += height + gap;
 
 var geom2 = new THREE.CylinderGeometry(width, width, height, sides);
-var mat2 = new THREE.MeshPhongMaterial( { color: 0x00ee00, shading: THREE.FlatShading } );
+var mat2 = new THREE.MeshStandardMaterial( { color: 0x00ee00, shading: THREE.FlatShading /* , shininess: 0, specular: 0*/ } );
 var mesh2 = new THREE.Mesh( geom2, mat2 );
 
 var geom3 = new THREE.CylinderGeometry(width, width, height, sides);
-var mat3 = new THREE.MeshPhongMaterial( { color: 0x0000ee, shading: THREE.FlatShading } );
+var mat3 = new THREE.MeshStandardMaterial( { color: 0x0000ee, shading: THREE.FlatShading /* , shininess: 0, specular: 0*/ } );
 var mesh3 = new THREE.Mesh( geom3, mat3 );
 mesh3.position.y -= height + gap;
 

@@ -110,9 +110,9 @@ function handleTouchEnd(e) {
 (function animate() {
     requestAnimationFrame( animate );
 
-    mesh1.rotation.y += (velocities[mesh1.uuid] / window.innerWidth) * 0.5; 
-    mesh2.rotation.y += (velocities[mesh2.uuid] / window.innerWidth) * 0.5; 
-    mesh3.rotation.y += (velocities[mesh3.uuid] / window.innerWidth) * 0.5;
+    mesh1.rotation.y += (velocities[mesh1.uuid] / window.innerWidth) * 0.6; 
+    mesh2.rotation.y += (velocities[mesh2.uuid] / window.innerWidth) * 0.6; 
+    mesh3.rotation.y += (velocities[mesh3.uuid] / window.innerWidth) * 0.6;
 
     var fingerDownFactor = lastKnownTouchX === undefined ?  0 : 0.3;
     //slow down sonny

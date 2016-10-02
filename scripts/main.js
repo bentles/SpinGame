@@ -113,9 +113,9 @@ function handleTouchEnd(e) {
     mesh3.rotation.y += (velocities[mesh3.uuid] / window.innerWidth) * 0.5;
 
     //slow down sonny
-    velocities[mesh1.uuid] *= 0.9;
-    velocities[mesh2.uuid] *= 0.9;
-    velocities[mesh3.uuid] *= 0.9;
+    velocities[mesh1.uuid] *= 0.8;
+    velocities[mesh2.uuid] *= 0.8;
+    velocities[mesh3.uuid] *= 0.8;
     
     renderer.render( scene, camera );
 

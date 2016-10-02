@@ -41898,9 +41898,14 @@ function handleTouchEnd(e) {
 (function animate() {
     requestAnimationFrame( animate );
 
-    mesh1.rotation.y = velocities[mesh1.uuid];
-    mesh2.rotation.y = velocities[mesh2.uuid];
-    mesh3.rotation.y = velocities[mesh3.uuid];
+    //let's just say 0.5 radians is the width of the screen
+    mesh1.rotation.y += (velocities[mesh1.uuid] / window.innerWidth) * 0.2; 
+    mesh2.rotation.y += (velocities[mesh2.uuid] / window.innerWidth) * 0.2; 
+    mesh3.rotation.y += (velocities[mesh3.uuid] / window.innerWidth) * 0.2;
+
+    velocities[mesh1.uuid] /= 1.1;
+    velocities[mesh2.uuid] /= 1.1;
+    velocities[mesh3.uuid] /= 1.1;
     
     renderer.render( scene, camera );
 

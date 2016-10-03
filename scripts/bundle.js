@@ -41934,7 +41934,7 @@ function handleTouchEnd(e) {
     if(Math.floor(oldpos1/ (Math.PI*0.25)) !== Math.floor(mesh1.rotation.y / (Math.PI*0.25)) ||
        Math.floor(oldpos2/ (Math.PI*0.25)) !== Math.floor(mesh2.rotation.y / (Math.PI*0.25)) ||
        Math.floor(oldpos3/ (Math.PI*0.25)) !== Math.floor(mesh3.rotation.y / (Math.PI*0.25))) {
-        clickSound.playbackRate = 1.5 + (Math.random() - 0.5) * 0.4;
+        clickSound.playbackRate = 1.5 + (Math.random() - 0.5) * 0.1;
         
         clickSound.play();
     }

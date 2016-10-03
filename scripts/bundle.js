@@ -41920,6 +41920,11 @@ function handleTouchEnd(e) {
     }
 }
 
+function speedFactor(x) {
+    //sigmoid absolute x with tails that are further away... yeah
+    return 1.2/(1 + Math.exp(-Math.abs(x)/ 300));
+}
+
 (function animate() {
     requestAnimationFrame( animate );
 
@@ -41934,16 +41939,16 @@ function handleTouchEnd(e) {
     if(Math.floor(oldpos1/ (Math.PI*0.25)) !== Math.floor(mesh1.rotation.y / (Math.PI*0.25)) ||
        Math.floor(oldpos2/ (Math.PI*0.25)) !== Math.floor(mesh2.rotation.y / (Math.PI*0.25)) ||
        Math.floor(oldpos3/ (Math.PI*0.25)) !== Math.floor(mesh3.rotation.y / (Math.PI*0.25))) {
-        clickSound.playbackRate = 1.5 + (Math.random() - 0.5) * 0.4;
+        clickSound.playbackRate = (1 + (Math.random() - 0.5) * 0.1) * speedFactor(velocities[mesh1.uuid]);
         
         clickSound.play();
     }
 
     var fingerDownFactor = lastKnownTouchX === undefined ?  0 : 0.3;
     //slow down sonny
-    velocities[mesh1.uuid] *= 0.98 - fingerDownFactor;
-    velocities[mesh2.uuid] *= 0.98 - fingerDownFactor;
-    velocities[mesh3.uuid] *= 0.98 - fingerDownFactor;
+    velocities[mesh1.uuid] *= 0.96 - fingerDownFactor;
+    velocities[mesh2.uuid] *= 0.96 - fingerDownFactor;
+    velocities[mesh3.uuid] *= 0.96 - fingerDownFactor;
     
     renderer.render( scene, camera );
 

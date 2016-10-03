@@ -128,7 +128,8 @@ function handleTouchEnd(e) {
 
 function speedFactor(x) {
     //sigmoid absolute x with tails that are further away... yeah
-    return 1.2/(1 + Math.exp(-Math.abs(x)/ 300));
+    var j = 1.3;
+    return j/(1 + Math.exp(-Math.abs(x)/ 300)) + 1-(j/2);
 }
 
 (function animate() {

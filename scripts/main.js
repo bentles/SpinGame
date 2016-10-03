@@ -6,6 +6,29 @@ scene = new THREE.Scene();
 camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 10000 );
 camera.position.z = 1000;
 
+var audioListener = new THREE.AudioListener();
+camera.add( audioListener );
+var clickSound = new THREE.Audio( audioListener );
+scene.add( clickSound );
+var loader = new THREE.AudioLoader();
+
+loader.load(
+	'click.ogg',    
+	// Function when resource is loaded
+	function ( audioBuffer ) {
+		// set the audio object buffer to the loaded object
+		clickSound.setBuffer( audioBuffer );
+	},
+	// Function called when download progresses
+	function ( xhr ) {
+		console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
+	},
+	// Function called when download errors
+	function ( xhr ) {
+		console.log( 'An error happened' );
+	}
+);
+
 var sides = 8;
 var width = 350;
 var height = 200;
@@ -76,10 +99,7 @@ function handleTouchStart(e) {
 function handleTouchMove(e) {
     var touchZero = findTouchZero(e.touches);
     if (touchZero) {
-        velocities[current_shape.uuid] += touchZero.clientX - lastKnownTouchX;
-        //console.log(velocities[current_shape.uuid]);
-        console.log(touchZero.clientX);
-        
+        velocities[current_shape.uuid] += touchZero.clientX - lastKnownTouchX;        
         lastKnownTouchX = touchZero.clientX;
         lastKnownTouchY = touchZero.clientY;  
     }
@@ -109,9 +129,21 @@ function handleTouchEnd(e) {
 (function animate() {
     requestAnimationFrame( animate );
 
+    //clickSound.play();
+    var oldpos1 = mesh1.rotation.y;
+    var oldpos2 = mesh2.rotation.y;
+    var oldpos3 = mesh3.rotation.y;
+    
+
     mesh1.rotation.y += (velocities[mesh1.uuid] / window.innerWidth) * 0.6; 
     mesh2.rotation.y += (velocities[mesh2.uuid] / window.innerWidth) * 0.6; 
     mesh3.rotation.y += (velocities[mesh3.uuid] / window.innerWidth) * 0.6;
+
+    if(Math.floor(oldpos1/ (Math.PI*0.25)) !== Math.floor(mesh1.rotation.y / (Math.PI*0.25)) ||
+       Math.floor(oldpos2/ (Math.PI*0.25)) !== Math.floor(mesh2.rotation.y / (Math.PI*0.25)) ||
+       Math.floor(oldpos3/ (Math.PI*0.25)) !== Math.floor(mesh3.rotation.y / (Math.PI*0.25))) {
+        clickSound.play();
+    }
 
     var fingerDownFactor = lastKnownTouchX === undefined ?  0 : 0.3;
     //slow down sonny

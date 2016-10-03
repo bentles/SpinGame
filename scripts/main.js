@@ -9,6 +9,7 @@ camera.position.z = 1000;
 var audioListener = new THREE.AudioListener();
 camera.add( audioListener );
 var clickSound = new THREE.Audio( audioListener );
+clickSound.playbackRate = 1.5;
 scene.add( clickSound );
 var loader = new THREE.AudioLoader();
 
@@ -74,7 +75,6 @@ document.body.appendChild( renderer.domElement );
 
 renderer.render( scene, camera );
 
-
 document.addEventListener('touchstart', handleTouchStart, false);
 document.addEventListener('touchend', handleTouchEnd, false);
 document.addEventListener('touchmove', handleTouchMove, false);
@@ -129,11 +129,9 @@ function handleTouchEnd(e) {
 (function animate() {
     requestAnimationFrame( animate );
 
-    //clickSound.play();
     var oldpos1 = mesh1.rotation.y;
     var oldpos2 = mesh2.rotation.y;
-    var oldpos3 = mesh3.rotation.y;
-    
+    var oldpos3 = mesh3.rotation.y;    
 
     mesh1.rotation.y += (velocities[mesh1.uuid] / window.innerWidth) * 0.6; 
     mesh2.rotation.y += (velocities[mesh2.uuid] / window.innerWidth) * 0.6; 

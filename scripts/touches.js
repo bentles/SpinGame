@@ -27,6 +27,13 @@ function createTouches(camera, scene) {
         },
         nuke : function(i) {
             touches[i] = undefined;
+        },
+        forEach : function(callback) {
+            touches.forEach(function(a) {
+                if (a !== undefined) {
+                    callback(a);
+                }
+            });
         }
     };    
 }

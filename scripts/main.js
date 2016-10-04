@@ -131,6 +131,7 @@ function speedFactor(x) {
     mesh1.rotation.y += (velocities[mesh1.uuid] / window.innerWidth) * 0.6; 
     mesh2.rotation.y += (velocities[mesh2.uuid] / window.innerWidth) * 0.6; 
     mesh3.rotation.y += (velocities[mesh3.uuid] / window.innerWidth) * 0.6;
+    console.log(mesh3.rotation.y);
 
     if(Math.floor(oldpos1/ (Math.PI*(2/sides))) !== Math.floor(mesh1.rotation.y / (Math.PI*(2/sides))) ||
        Math.floor(oldpos2/ (Math.PI*(2/sides))) !== Math.floor(mesh2.rotation.y / (Math.PI*(2/sides))) ||

@@ -87,12 +87,13 @@ function handleTouchStart(e) {
 }
 
 function handleTouchMove(e) {
-    for(var i = 0; i < e.touches.length; i++) {
-        var prevX = touches.get(i).x;
-        var prevObject = touches.get(i).object;
-        touches.set(i, e.touches[i]);
+    for(var i = 0; i < e.changedTouches.length; i++) {
+        var ident = e.changedTouches[i].identifier;
+        var prevX = touches.get(ident).x;
+        var prevObject = touches.get(ident).object;
+        touches.set(ident, e.changedTouches[i]);
 
-        var currentTouch = touches.get(i);
+        var currentTouch = touches.get(ident);
         var dX = currentTouch.x - prevX;
 
         //touching an object affects its velocity - hilariously more fingers = faster spinning now xD

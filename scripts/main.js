@@ -29,7 +29,7 @@ loader.load(
 	}
 );
 
-var sides = 5;
+var sides = 8;
 var width = 350;
 var height = 200;
 var gap = 20;

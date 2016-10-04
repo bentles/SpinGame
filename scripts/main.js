@@ -53,6 +53,10 @@ var velocities = {};
 velocities[mesh1.uuid] = 0;
 velocities[mesh2.uuid] = 0;
 velocities[mesh3.uuid] = 0;
+var fingerDownFactor = {};
+fingerDownFactor[mesh1.uuid] = 0;
+fingerDownFactor[mesh2.uuid] = 0;
+fingerDownFactor[mesh3.uuid] = 0;
 
 var directionalLight = new THREE.DirectionalLight( 0xffffff, 0.6 );
 directionalLight.position.set( 1, 0, 5 );
@@ -80,13 +84,18 @@ document.addEventListener('touchmove', handleTouchMove, false);
 function handleTouchStart(e) {
     console.log('start!');
     for(var i = 0; i < e.touches.length; i++) {
-        touches.set(i, e.touches[i]);                
+        touches.set(i, e.touches[i]);
+
+        //if they start on an object
+        if (touches.get(i).object)      
+            fingerDownFactor[touches.get(i).object.uuid]++;
     }
 }
 
 function handleTouchMove(e) {
     for(var i = 0; i < e.touches.length; i++) {
-        var prevX = touches.get(i).x;        
+        var prevX = touches.get(i).x;
+        var prevObject = touches.get(i).object;
         touches.set(i, e.touches[i]);
 
         var currentTouch = touches.get(i);
@@ -94,8 +103,18 @@ function handleTouchMove(e) {
 
         console.log(dX);
 
-        if (currentTouch.object) //if we're actually touching something
+        //touching an object affects its velocity - hilariously more fingers = faster spinning now xD
+        if (currentTouch.object) 
             velocities[currentTouch.object.uuid] += dX;
+
+        //we moved over something
+        if (!prevObject && currentTouch.object) {
+            fingerDownFactor[currentTouch.object.uuid]++;
+        }
+        //we moved off of something
+        if (prevObject && !currentTouch.object) {
+            fingerDownFactor[prevObject.uuid]--;
+        }
     }
 }
 
@@ -103,6 +122,10 @@ function handleTouchEnd(e) {
     console.log('nuke!');
     //until I know what I want to do with multiple touches let's pretend others don't exist :)
     for(var i = 0; i < e.changedTouches.length; i++) {
+        var obj = touches.get(e.changedTouches[i].identifier).object;
+        if (obj)
+            fingerDownFactor[obj.uuid]--;
+        
         touches.nuke(e.changedTouches[i].identifier);
     }
 }
@@ -131,12 +154,11 @@ function speedFactor(x) {
         
         clickSound.play();
     }
-
-    var fingerDownFactor = 0;//lastKnownTouchX === undefined ?  0 : 0.3;
+    
     //slow down sonny
-    velocities[mesh1.uuid] *= 0.96 - fingerDownFactor;
-    velocities[mesh2.uuid] *= 0.96 - fingerDownFactor;
-    velocities[mesh3.uuid] *= 0.96 - fingerDownFactor;
+    velocities[mesh1.uuid] *= 0.96 - (fingerDownFactor[mesh1.uuid] ? 0.3 : 0);
+    velocities[mesh2.uuid] *= 0.96 - (fingerDownFactor[mesh2.uuid] ? 0.3 : 0);
+    velocities[mesh3.uuid] *= 0.96 - (fingerDownFactor[mesh3.uuid] ? 0.3 : 0);
     
     renderer.render( scene, camera );
 

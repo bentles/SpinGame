@@ -41870,10 +41870,11 @@ renderer.render( scene, camera );
 
 document.addEventListener('touchstart', handleTouchStart, false);
 document.addEventListener('touchend', handleTouchEnd, false);
+document.addEventListener('touchcancel', handleTouchEnd, false);
 document.addEventListener('touchmove', handleTouchMove, false);
 
 function handleTouchStart(e) {
-    console.log(e);
+    //console.log(e);
     for(var i = 0; i < e.changedTouches.length; i++) {
         touches.set(e.changedTouches[i].identifier, e.changedTouches[i]);
     }
@@ -41895,7 +41896,7 @@ function handleTouchMove(e) {
 }
 
 function handleTouchEnd(e) {
-    console.log('nuke!');
+    //console.log('nuke!');
     //until I know what I want to do with multiple touches let's pretend others don't exist :)
     for(var i = 0; i < e.changedTouches.length; i++) {
         var obj = touches.get(e.changedTouches[i].identifier).object;
@@ -41936,12 +41937,12 @@ function speedFactor(x) {
     //which objects are you touching right now?
     touches.forEach(function(touch) {
         if (touch.object) {
-            console.log(touch.object.uuid);            
+           // console.log(touch.object.uuid);            
             fingerDownFactor[touch.object.uuid] = 0.3;
         }
     });
 
-    console.log(mesh1.rotation.y);
+    //console.log(mesh1.rotation.y);
     
     //slow down sonny
     velocities[mesh1.uuid] *= 0.96 - fingerDownFactor[mesh1.uuid];

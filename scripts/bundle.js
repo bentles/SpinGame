@@ -41876,9 +41876,9 @@ document.addEventListener('touchend', handleTouchEnd, false);
 document.addEventListener('touchmove', handleTouchMove, false);
 
 function handleTouchStart(e) {
-    console.log('start!');
-    for(var i = 0; i < e.touches.length; i++) {
-        touches.set(i, e.touches[i]);
+    console.log(e);
+    for(var i = 0; i < e.changedTouches.length; i++) {
+        touches.set(e.changedTouches[i].identifier, e.changedTouches[i]);
 
         //if they start on an object
         if (touches.get(i).object)      

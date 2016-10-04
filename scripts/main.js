@@ -137,9 +137,10 @@ function speedFactor(x) {
     if(Math.floor(oldpos1/ (Math.PI*(2/sides))) !== Math.floor(mesh1.rotation.y / (Math.PI*(2/sides))) ||
        Math.floor(oldpos2/ (Math.PI*(2/sides))) !== Math.floor(mesh2.rotation.y / (Math.PI*(2/sides))) ||
        Math.floor(oldpos3/ (Math.PI*(2/sides))) !== Math.floor(mesh3.rotation.y / (Math.PI*(2/sides)))) {
-        //clickSound.playbackRate = (1 + (Math.random() - 0.5) * 0.1) * speedFactor(velocities[mesh1.uuid]);
-        
-        //clickSound.play();
+
+        //need a sound thing per spinny thing
+        clickSound.setPlaybackRate(1 + (Math.random() - 0.5) * 0.1);
+        clickSound.play();
     }
 
     //which objects are you touching right now?

@@ -41923,9 +41923,9 @@ function speedFactor(x) {
     var oldpos2 = mesh2.rotation.y;
     var oldpos3 = mesh3.rotation.y;    
 
-    mesh1.rotation.y += (velocities[mesh1.uuid] / window.innerWidth) * 0.6; 
-    mesh2.rotation.y += (velocities[mesh2.uuid] / window.innerWidth) * 0.6; 
-    mesh3.rotation.y += (velocities[mesh3.uuid] / window.innerWidth) * 0.6;
+    mesh1.rotation.y += (velocities[mesh1.uuid] / window.innerWidth) * 0.65; 
+    mesh2.rotation.y += (velocities[mesh2.uuid] / window.innerWidth) * 0.65; 
+    mesh3.rotation.y += (velocities[mesh3.uuid] / window.innerWidth) * 0.65;
     console.log(mesh3.rotation.y);
 
     if(Math.floor(oldpos1/ (Math.PI*(2/sides))) !== Math.floor(mesh1.rotation.y / (Math.PI*(2/sides))) ||
@@ -41948,9 +41948,9 @@ function speedFactor(x) {
     //console.log(mesh1.rotation.y);
     
     //slow down sonny
-    velocities[mesh1.uuid] *= 0.96 - fingerDownFactor[mesh1.uuid];
-    velocities[mesh2.uuid] *= 0.96 - fingerDownFactor[mesh2.uuid];
-    velocities[mesh3.uuid] *= 0.96 - fingerDownFactor[mesh3.uuid];
+    velocities[mesh1.uuid] *= 0.98 - fingerDownFactor[mesh1.uuid];
+    velocities[mesh2.uuid] *= 0.98 - fingerDownFactor[mesh2.uuid];
+    velocities[mesh3.uuid] *= 0.98 - fingerDownFactor[mesh3.uuid];
     
     renderer.render( scene, camera );
 

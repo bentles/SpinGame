@@ -41793,13 +41793,12 @@
 })));
 },{}],2:[function(require,module,exports){
 var THREE = require('./lib/three.js');
-var scene, camera, renderer;
 
-scene = new THREE.Scene();
-
-camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 10000 );
+var scene = new THREE.Scene();
+var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 10000 );
 camera.position.z = 1000;
-
+var touches = require('./touches.js')(camera, scene);
+  
 var audioListener = new THREE.AudioListener();
 camera.add( audioListener );
 var clickSound = new THREE.Audio( audioListener );
@@ -41824,7 +41823,7 @@ loader.load(
 	}
 );
 
-var sides = 8;
+var sides = 5;
 var width = 350;
 var height = 200;
 var gap = 20;
@@ -41852,8 +41851,7 @@ velocities[mesh3.uuid] = 0;
 var directionalLight = new THREE.DirectionalLight( 0xffffff, 0.6 );
 directionalLight.position.set( 1, 0, 5 );
 
-var lastKnownTouchX = undefined;
-var lastKnownTouchY = undefined;
+var prevPosisions = [];
 
 var current_shape = undefined;
 
@@ -41862,7 +41860,7 @@ scene.add( mesh2 );
 scene.add( mesh3 );
 scene.add( directionalLight );
 
-renderer = new THREE.WebGLRenderer({antialias : true});
+var renderer = new THREE.WebGLRenderer({antialias : true});
 renderer.setSize( window.innerWidth, window.innerHeight );
 
 document.body.appendChild( renderer.domElement );
@@ -41874,49 +41872,32 @@ document.addEventListener('touchend', handleTouchEnd, false);
 document.addEventListener('touchmove', handleTouchMove, false);
 
 function handleTouchStart(e) {
-    lastKnownTouchY = e.touches[0].clientY;
-    lastKnownTouchX = e.touches[0].clientX;
-    
-    var x = 2 * (e.touches[0].clientX / window.innerWidth) - 1;
-    var y = 1 - 2 * (e.touches[0].clientY / window.innerHeight);
-
-    var vector = new THREE.Vector3(x, y, 1).unproject(camera);
-
-    var raycaster = new THREE.Raycaster(camera.position, vector.sub(camera.position).normalize());
-    var intersects = raycaster.intersectObjects(scene.children);
-    
-    if (intersects.length > 0) {
-        current_shape = intersects[0].object;
+    console.log('start!');
+    for(var i = 0; i < e.touches.length; i++) {
+        touches.set(i, e.touches[i]);                
     }
 }
 
 function handleTouchMove(e) {
-    var touchZero = findTouchZero(e.touches);
-    if (touchZero) {
-        velocities[current_shape.uuid] += touchZero.clientX - lastKnownTouchX;        
-        lastKnownTouchX = touchZero.clientX;
-        lastKnownTouchY = touchZero.clientY;  
-    }
-}
+    for(var i = 0; i < e.touches.length; i++) {
+        var prevX = touches.get(i).x;        
+        touches.set(i, e.touches[i]);
 
-function findTouchZero(touches) {
-    //TODO: is this really how you do this though?
-    for(var i = 0; i < touches.length; i++) {
-        if (touches[i].identifier === 0)
-            return touches[i];
-    }
+        var currentTouch = touches.get(i);
+        var dX = currentTouch.x - prevX;
 
-    return undefined;
+        console.log(dX);
+
+        if (currentTouch.object) //if we're actually touching something
+            velocities[currentTouch.object.uuid] += dX;
+    }
 }
 
 function handleTouchEnd(e) {
+    console.log('nuke!');
     //until I know what I want to do with multiple touches let's pretend others don't exist :)
-    var touchZero = findTouchZero(e.changedTouches);
-    
-    if (touchZero && current_shape) {
-        lastKnownTouchX = undefined;
-        
-        current_shape.material.wireframe = false;
+    for(var i = 0; i < e.changedTouches.length; i++) {
+        touches.nuke(e.changedTouches[i].identifier);
     }
 }
 
@@ -41937,15 +41918,15 @@ function speedFactor(x) {
     mesh2.rotation.y += (velocities[mesh2.uuid] / window.innerWidth) * 0.6; 
     mesh3.rotation.y += (velocities[mesh3.uuid] / window.innerWidth) * 0.6;
 
-    if(Math.floor(oldpos1/ (Math.PI*0.25)) !== Math.floor(mesh1.rotation.y / (Math.PI*0.25)) ||
-       Math.floor(oldpos2/ (Math.PI*0.25)) !== Math.floor(mesh2.rotation.y / (Math.PI*0.25)) ||
-       Math.floor(oldpos3/ (Math.PI*0.25)) !== Math.floor(mesh3.rotation.y / (Math.PI*0.25))) {
+    if(Math.floor(oldpos1/ (Math.PI*(2/sides))) !== Math.floor(mesh1.rotation.y / (Math.PI*(2/sides))) ||
+       Math.floor(oldpos2/ (Math.PI*(2/sides))) !== Math.floor(mesh2.rotation.y / (Math.PI*(2/sides))) ||
+       Math.floor(oldpos3/ (Math.PI*(2/sides))) !== Math.floor(mesh3.rotation.y / (Math.PI*(2/sides)))) {
         clickSound.playbackRate = (1 + (Math.random() - 0.5) * 0.1) * speedFactor(velocities[mesh1.uuid]);
         
         clickSound.play();
     }
 
-    var fingerDownFactor = lastKnownTouchX === undefined ?  0 : 0.3;
+    var fingerDownFactor = 0;//lastKnownTouchX === undefined ?  0 : 0.3;
     //slow down sonny
     velocities[mesh1.uuid] *= 0.96 - fingerDownFactor;
     velocities[mesh2.uuid] *= 0.96 - fingerDownFactor;
@@ -41955,4 +41936,40 @@ function speedFactor(x) {
 
 })();
 
-},{"./lib/three.js":1}]},{},[2,1]);
+},{"./lib/three.js":1,"./touches.js":3}],3:[function(require,module,exports){
+var THREE = require('./lib/three.js');
+
+function createTouches(camera, scene) {
+    var touches = [];
+
+    function getObject(screenX, screenY) {
+        var x = 2 * (screenX / window.innerWidth) - 1;
+        var y = 1 - 2 * (screenY / window.innerHeight);
+
+        var vector = new THREE.Vector3(x, y, 1).unproject(camera);
+
+        var raycaster = new THREE.Raycaster(camera.position, vector.sub(camera.position).normalize());
+        var intersected = raycaster.intersectObjects(scene.children);
+        
+        return (intersected.length > 0)? intersected[0].object : undefined;        
+    }
+    
+    return {
+        touches : touches, //TODO: nuke this line later I just want it for debugging
+        get : function(i) {
+            return touches[i] ? touches[i] : {}; //I want getTouch(i).x to be undefined if it doesn't exist
+        },
+        set : function(i, touch) {
+            touches[i] = {x : touch.clientX,
+                          y : touch.clientY,
+                          object : getObject(touch.clientX,touch.clientY)};
+        },
+        nuke : function(i) {
+            touches[i] = undefined;
+        }
+    };    
+}
+
+module.exports = createTouches;
+
+},{"./lib/three.js":1}]},{},[2,3,1]);

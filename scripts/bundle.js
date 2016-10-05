@@ -41911,7 +41911,8 @@ function playClickSound(oldpos, newpos) {
         //let's just make a new one and throw is away each time :)
         //how about that obama??
         var audio = new THREE.Audio( audioListener );
-        audio.setBuffer(buffer);  
+        audio.setBuffer(buffer);
+        audio.setVolume(0.2);
         audio.setPlaybackRate(1 + (Math.random() - 0.5) * 0.1);
         audio.play();
     }    

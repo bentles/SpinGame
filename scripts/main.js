@@ -7,23 +7,20 @@ var touches = require('./touches.js')(camera, scene);
   
 var audioListener = new THREE.AudioListener();
 camera.add( audioListener );
-var clickSound = new THREE.Audio( audioListener );
 
-scene.add( clickSound );
+var buffer;
+var ready = false;
 var loader = new THREE.AudioLoader();
-
 loader.load(
 	'click.ogg',    
-	// Function when resource is loaded
+	//loaded
 	function ( audioBuffer ) {
-		// set the audio object buffer to the loaded object
-		clickSound.setBuffer( audioBuffer );
+        buffer = audioBuffer;
+        ready = true;
 	},
-	// Function called when download progresses
-	function ( xhr ) {
-		console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
-	},
-	// Function called when download errors
+	//progress
+	function ( xhr ) {},
+	//errors
 	function ( xhr ) {
 		console.log( 'An error happened' );
 	}
@@ -112,52 +109,54 @@ function handleTouchEnd(e) {
     }
 }
 
-function speedFactor(x) {
-    //sigmoid absolute x with tails that are further away... yeah
-    var j = 1.3;
-    return j/(1 + Math.exp(-Math.abs(x)/ 300)) + 1-(j/2);
+function playClickSound(oldpos, newpos) {
+    var clickThreshold = (Math.PI*(2/sides)); //how wide an arc we need to cover between clicks
+    if(Math.floor(oldpos/clickThreshold) !== Math.floor(newpos /clickThreshold))
+    {
+        //since these things like to get stuck with isPlaying true
+        //let's just make a new one and throw is away each time :)
+        //how about that obama??
+        var audio = new THREE.Audio( audioListener );
+        audio.setBuffer(buffer);  
+        audio.setPlaybackRate(1 + (Math.random() - 0.5) * 0.1);
+        audio.play();
+    }    
 }
 
 (function animate() {
     requestAnimationFrame( animate );
 
-    fingerDownFactor[mesh1.uuid] = 0;
-    fingerDownFactor[mesh2.uuid] = 0;
-    fingerDownFactor[mesh3.uuid] = 0;
+    if (ready) {
+        fingerDownFactor[mesh1.uuid] = 0;
+        fingerDownFactor[mesh2.uuid] = 0;
+        fingerDownFactor[mesh3.uuid] = 0;
 
-    var oldpos1 = mesh1.rotation.y;
-    var oldpos2 = mesh2.rotation.y;
-    var oldpos3 = mesh3.rotation.y;    
+        var oldpos1 = mesh1.rotation.y;
+        var oldpos2 = mesh2.rotation.y;
+        var oldpos3 = mesh3.rotation.y;    
 
-    mesh1.rotation.y += (velocities[mesh1.uuid] / window.innerWidth) * 0.65; 
-    mesh2.rotation.y += (velocities[mesh2.uuid] / window.innerWidth) * 0.65; 
-    mesh3.rotation.y += (velocities[mesh3.uuid] / window.innerWidth) * 0.65;
-    console.log(mesh3.rotation.y);
+        mesh1.rotation.y += (velocities[mesh1.uuid] / window.innerWidth) * 0.6; 
+        mesh2.rotation.y += (velocities[mesh2.uuid] / window.innerWidth) * 0.6; 
+        mesh3.rotation.y += (velocities[mesh3.uuid] / window.innerWidth) * 0.6;
 
-    if(Math.floor(oldpos1/ (Math.PI*(2/sides))) !== Math.floor(mesh1.rotation.y / (Math.PI*(2/sides))) ||
-       Math.floor(oldpos2/ (Math.PI*(2/sides))) !== Math.floor(mesh2.rotation.y / (Math.PI*(2/sides))) ||
-       Math.floor(oldpos3/ (Math.PI*(2/sides))) !== Math.floor(mesh3.rotation.y / (Math.PI*(2/sides)))) {
-
-        //need a sound thing per spinny thing
-        clickSound.setPlaybackRate(1 + (Math.random() - 0.5) * 0.1);
-        clickSound.play();
+        playClickSound( oldpos1, mesh1.rotation.y );
+        playClickSound( oldpos2, mesh2.rotation.y );
+        playClickSound( oldpos3, mesh3.rotation.y );
+        
+        //which objects are you touching right now?
+        touches.forEach(function(touch) {
+            if (touch.object) {
+                // console.log(touch.object.uuid);            
+                fingerDownFactor[touch.object.uuid] = 0.3;
+            }
+        });    
+        //slow down sonny
+        velocities[mesh1.uuid] *= 0.98 - fingerDownFactor[mesh1.uuid];
+        velocities[mesh2.uuid] *= 0.98 - fingerDownFactor[mesh2.uuid];
+        velocities[mesh3.uuid] *= 0.98 - fingerDownFactor[mesh3.uuid];
+        
+        renderer.render( scene, camera );
     }
-
-    //which objects are you touching right now?
-    touches.forEach(function(touch) {
-        if (touch.object) {
-           // console.log(touch.object.uuid);            
-            fingerDownFactor[touch.object.uuid] = 0.3;
-        }
-    });
-
-    //console.log(mesh1.rotation.y);
     
-    //slow down sonny
-    velocities[mesh1.uuid] *= 0.98 - fingerDownFactor[mesh1.uuid];
-    velocities[mesh2.uuid] *= 0.98 - fingerDownFactor[mesh2.uuid];
-    velocities[mesh3.uuid] *= 0.98 - fingerDownFactor[mesh3.uuid];
-    
-    renderer.render( scene, camera );
 
 })();

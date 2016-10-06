@@ -31,19 +31,46 @@ var width = 350;
 var height = 200;
 var gap = 20;
 
+var mat11 = new THREE.MeshPhongMaterial( { color: 0xee1111 , shading: THREE.FlatShading, shininess: 0});
+var mat12 = new THREE.MeshPhongMaterial( { color: 0x222222, shading: THREE.FlatShading, shininess: 0});
+var mat1 = new THREE.MultiMaterial([mat11, mat12]);
+
+var mat21 = new THREE.MeshPhongMaterial( { color: 0x11ee11, shading: THREE.FlatShading, shininess: 0});
+var mat22 = new THREE.MeshPhongMaterial( { color: 0x222222, shading: THREE.FlatShading, shininess: 0});
+var mat2 = new THREE.MultiMaterial([mat21, mat22]);
+
+var mat31 = new THREE.MeshPhongMaterial( { color: 0x1111ee, shading: THREE.FlatShading, shininess: 0});
+var mat32 = new THREE.MeshPhongMaterial( { color: 0x222222, shading: THREE.FlatShading, shininess: 0});
+var mat3 = new THREE.MultiMaterial([mat31, mat32]);
+
 var geom1 = new THREE.CylinderGeometry(width, width, height, sides);
-var mat1 = new THREE.MeshPhongMaterial( { color: 0xee0000, shading: THREE.FlatShading, shininess: 0});
+var geom2 = new THREE.CylinderGeometry(width, width, height, sides);
+var geom3 = new THREE.CylinderGeometry(width, width, height, sides);
+
 var mesh1 = new THREE.Mesh( geom1, mat1 );
 mesh1.position.y += height + gap;
-
-var geom2 = new THREE.CylinderGeometry(width, width, height, sides);
-var mat2 = new THREE.MeshPhongMaterial( { color: 0x00ee00, shading: THREE.FlatShading, shininess: 0});
 var mesh2 = new THREE.Mesh( geom2, mat2 );
-
-var geom3 = new THREE.CylinderGeometry(width, width, height, sides);
-var mat3 = new THREE.MeshPhongMaterial( { color: 0x0000ee, shading: THREE.FlatShading, shininess: 0});
 var mesh3 = new THREE.Mesh( geom3, mat3 );
 mesh3.position.y -= height + gap;
+
+for(var i = 0; i <  mesh1.geometry.faces.length; i++) {
+    mesh1.geometry.faces[i].materialIndex = 0;
+    mesh2.geometry.faces[i].materialIndex = 0;
+    mesh3.geometry.faces[i].materialIndex = 0;
+}
+
+mesh1.geometry.faces[0].materialIndex = 1;
+mesh2.geometry.faces[0].materialIndex = 1;
+mesh3.geometry.faces[0].materialIndex = 1;
+mesh1.geometry.faces[15].materialIndex = 1;
+mesh2.geometry.faces[15].materialIndex = 1;
+mesh3.geometry.faces[15].materialIndex = 1;
+mesh1.geometry.faces[7].materialIndex = 1;
+mesh2.geometry.faces[7].materialIndex = 1;
+mesh3.geometry.faces[7].materialIndex = 1;
+mesh1.geometry.faces[8].materialIndex = 1;
+mesh2.geometry.faces[8].materialIndex = 1;
+mesh3.geometry.faces[8].materialIndex = 1;
 
 //use the identifier on the mesh to get from the object to their velocities
 var velocities = {};
@@ -119,7 +146,7 @@ function playClickSound(oldpos, newpos) {
         var audio = new THREE.Audio( audioListener );
         audio.setBuffer(buffer);
         audio.setVolume(0.2);
-        audio.setPlaybackRate(1 + (Math.random() - 0.5) * 0.1);
+        audio.setPlaybackRate(2);
         audio.play();
     }    
 }

@@ -41853,18 +41853,18 @@ for(var i = 0; i <  mesh1.geometry.faces.length; i++) {
     mesh3.geometry.faces[i].materialIndex = 0;
 }
 
-mesh1.geometry.faces[0].materialIndex = 1;
-mesh2.geometry.faces[0].materialIndex = 1;
-mesh3.geometry.faces[0].materialIndex = 1;
+mesh1.geometry.faces[14].materialIndex = 1;
+mesh2.geometry.faces[14].materialIndex = 1;
+mesh3.geometry.faces[14].materialIndex = 1;
 mesh1.geometry.faces[15].materialIndex = 1;
 mesh2.geometry.faces[15].materialIndex = 1;
 mesh3.geometry.faces[15].materialIndex = 1;
 mesh1.geometry.faces[7].materialIndex = 1;
 mesh2.geometry.faces[7].materialIndex = 1;
 mesh3.geometry.faces[7].materialIndex = 1;
-mesh1.geometry.faces[8].materialIndex = 1;
-mesh2.geometry.faces[8].materialIndex = 1;
-mesh3.geometry.faces[8].materialIndex = 1;
+mesh1.geometry.faces[6].materialIndex = 1;
+mesh2.geometry.faces[6].materialIndex = 1;
+mesh3.geometry.faces[6].materialIndex = 1;
 
 //use the identifier on the mesh to get from the object to their velocities
 var velocities = {};
@@ -41973,9 +41973,9 @@ function playClickSound(oldpos, newpos) {
             }
         });    
         //slow down sonny
-        velocities[mesh1.uuid] *= 0.98 - fingerDownFactor[mesh1.uuid];
-        velocities[mesh2.uuid] *= 0.98 - fingerDownFactor[mesh2.uuid];
-        velocities[mesh3.uuid] *= 0.98 - fingerDownFactor[mesh3.uuid];
+        velocities[mesh1.uuid] *= 0.96 - fingerDownFactor[mesh1.uuid];
+        velocities[mesh2.uuid] *= 0.96 - fingerDownFactor[mesh2.uuid];
+        velocities[mesh3.uuid] *= 0.96 - fingerDownFactor[mesh3.uuid];
         
         renderer.render( scene, camera );
     }

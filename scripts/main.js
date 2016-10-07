@@ -32,15 +32,15 @@ var height = 200;
 var gap = 20;
 
 var mat11 = new THREE.MeshPhongMaterial( { color: 0xee1111 , shading: THREE.FlatShading, shininess: 0});
-var mat12 = new THREE.MeshPhongMaterial( { color: 0x222222, shading: THREE.FlatShading, shininess: 0});
+var mat12 = new THREE.MeshPhongMaterial( { color: 0x111111, shading: THREE.FlatShading, shininess: 0});
 var mat1 = new THREE.MultiMaterial([mat11, mat12]);
 
 var mat21 = new THREE.MeshPhongMaterial( { color: 0x11ee11, shading: THREE.FlatShading, shininess: 0});
-var mat22 = new THREE.MeshPhongMaterial( { color: 0x222222, shading: THREE.FlatShading, shininess: 0});
+var mat22 = new THREE.MeshPhongMaterial( { color: 0x111111, shading: THREE.FlatShading, shininess: 0});
 var mat2 = new THREE.MultiMaterial([mat21, mat22]);
 
 var mat31 = new THREE.MeshPhongMaterial( { color: 0x1111ee, shading: THREE.FlatShading, shininess: 0});
-var mat32 = new THREE.MeshPhongMaterial( { color: 0x222222, shading: THREE.FlatShading, shininess: 0});
+var mat32 = new THREE.MeshPhongMaterial( { color: 0x111111, shading: THREE.FlatShading, shininess: 0});
 var mat3 = new THREE.MultiMaterial([mat31, mat32]);
 
 var geom1 = new THREE.CylinderGeometry(width, width, height, sides);
@@ -65,12 +65,24 @@ mesh3.geometry.faces[14].materialIndex = 1;
 mesh1.geometry.faces[15].materialIndex = 1;
 mesh2.geometry.faces[15].materialIndex = 1;
 mesh3.geometry.faces[15].materialIndex = 1;
-mesh1.geometry.faces[7].materialIndex = 1;
-mesh2.geometry.faces[7].materialIndex = 1;
-mesh3.geometry.faces[7].materialIndex = 1;
 mesh1.geometry.faces[6].materialIndex = 1;
 mesh2.geometry.faces[6].materialIndex = 1;
 mesh3.geometry.faces[6].materialIndex = 1;
+mesh1.geometry.faces[7].materialIndex = 1;
+mesh2.geometry.faces[7].materialIndex = 1;
+mesh3.geometry.faces[7].materialIndex = 1;
+mesh1.geometry.faces[10].materialIndex = 1;
+mesh2.geometry.faces[10].materialIndex = 1;
+mesh3.geometry.faces[10].materialIndex = 1;
+mesh1.geometry.faces[11].materialIndex = 1;
+mesh2.geometry.faces[11].materialIndex = 1;
+mesh3.geometry.faces[11].materialIndex = 1;
+mesh1.geometry.faces[2].materialIndex = 1;
+mesh2.geometry.faces[2].materialIndex = 1;
+mesh3.geometry.faces[2].materialIndex = 1;
+mesh1.geometry.faces[3].materialIndex = 1;
+mesh2.geometry.faces[3].materialIndex = 1;
+mesh3.geometry.faces[3].materialIndex = 1;
 
 //use the identifier on the mesh to get from the object to their velocities
 var velocities = {};
@@ -169,12 +181,16 @@ function playClickSound(oldpos, newpos) {
 
         var sideArc = (2*Math.PI / 8);
         var halfSideArc = sideArc / 2;
-        var modulus = mesh1.rotation.y % sideArc;
-        var springThing =  mesh1.rotation.y < 0 ? sideArc + modulus  : modulus;
-        springThing -= halfSideArc;
-        console.log(springThing);
-        velocities[mesh1.uuid] -=  velocities[mesh1.uuid]*0.3 + springThing * 20 ;         
-
+        var modulus1 = mesh1.rotation.y % sideArc;
+        var modulus2 = mesh2.rotation.y % sideArc;
+        var modulus3 = mesh3.rotation.y % sideArc;
+        var springThing1 =  mesh1.rotation.y < 0 ? halfSideArc + modulus1  : modulus1 - halfSideArc; 
+        velocities[mesh1.uuid] -=  velocities[mesh1.uuid]*0.3 + springThing1 * 20 ;         
+        var springThing2 =  mesh2.rotation.y < 0 ? halfSideArc + modulus2  : modulus2 - halfSideArc; 
+        velocities[mesh2.uuid] -=  velocities[mesh2.uuid]*0.3 + springThing2 * 20 ;
+        var springThing3 =  mesh3.rotation.y < 0 ? halfSideArc + modulus3  : modulus3 - halfSideArc; 
+        velocities[mesh3.uuid] -=  velocities[mesh3.uuid]*0.3 + springThing3 * 20 ;         
+        
         playClickSound( oldpos1, mesh1.rotation.y );
         playClickSound( oldpos2, mesh2.rotation.y );
         playClickSound( oldpos3, mesh3.rotation.y );

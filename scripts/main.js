@@ -122,7 +122,7 @@ function handleTouchMove(e) {
 
         //touching an object affects its velocity - hilariously more fingers = faster spinning now xD
         if (currentTouch.object) 
-            velocities[currentTouch.object.uuid] += dX;
+            velocities[currentTouch.object.uuid] += dX * 3;
     }
 }
 
@@ -166,6 +166,14 @@ function playClickSound(oldpos, newpos) {
         mesh1.rotation.y += (velocities[mesh1.uuid] / window.innerWidth) * 0.6; 
         mesh2.rotation.y += (velocities[mesh2.uuid] / window.innerWidth) * 0.6; 
         mesh3.rotation.y += (velocities[mesh3.uuid] / window.innerWidth) * 0.6;
+
+        var sideArc = (2*Math.PI / 8);
+        var halfSideArc = sideArc / 2;
+        var modulus = mesh1.rotation.y % sideArc;
+        var springThing =  mesh1.rotation.y < 0 ? sideArc + modulus  : modulus;
+        springThing -= halfSideArc;
+        console.log(springThing);
+        velocities[mesh1.uuid] -=  velocities[mesh1.uuid]*0.3 + springThing * 20 ;         
 
         playClickSound( oldpos1, mesh1.rotation.y );
         playClickSound( oldpos2, mesh2.rotation.y );

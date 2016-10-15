@@ -8,39 +8,42 @@ var touches = require('./touches.js')(camera, scene);
 var audioListener = new THREE.AudioListener();
 camera.add( audioListener );
 
-var buffer;
-var ready = false;
+var clickBuffer;
+var metronomeBuffer;
+var ready1 = false;
+var ready2 = false;
 var loader = new THREE.AudioLoader();
-loader.load(
-	'click.ogg',    
-	//loaded
-	function ( audioBuffer ) {
-        buffer = audioBuffer;
-        ready = true;
-	},
-	//progress
-	function ( xhr ) {},
-	//errors
-	function ( xhr ) {
-		console.log( 'An error happened' );
-	}
+loader.load('click.ogg',    
+	function ( audioBuffer ) { //loaded
+        clickBuffer = audioBuffer;
+        ready1 = true;
+	}, function ( xhr ) {}, function ( xhr ) {console.log( 'An error happened' );}
 );
+loader.load('metronome.ogg',
+    function (audioBuffer) {
+        metronomeBuffer = audioBuffer;
+        ready2 = true;
+    }, function(){}, function(){});
 
+var bpm = 100;
+var mspb = (60 * 1000)/ bpm;
+
+var yOffset = 50;
 var sides = 8;
 var width = 350;
 var height = 200;
 var gap = 20;
 
 var mat11 = new THREE.MeshPhongMaterial( { color: 0xee1111 , shading: THREE.FlatShading, shininess: 0});
-var mat12 = new THREE.MeshPhongMaterial( { color: 0x111111, shading: THREE.FlatShading, shininess: 0});
+var mat12 = new THREE.MeshPhongMaterial( { color: 0x333333, shading: THREE.FlatShading, shininess: 0});
 var mat1 = new THREE.MultiMaterial([mat11, mat12]);
 
 var mat21 = new THREE.MeshPhongMaterial( { color: 0x11ee11, shading: THREE.FlatShading, shininess: 0});
-var mat22 = new THREE.MeshPhongMaterial( { color: 0x111111, shading: THREE.FlatShading, shininess: 0});
+var mat22 = new THREE.MeshPhongMaterial( { color: 0x333333, shading: THREE.FlatShading, shininess: 0});
 var mat2 = new THREE.MultiMaterial([mat21, mat22]);
 
 var mat31 = new THREE.MeshPhongMaterial( { color: 0x1111ee, shading: THREE.FlatShading, shininess: 0});
-var mat32 = new THREE.MeshPhongMaterial( { color: 0x111111, shading: THREE.FlatShading, shininess: 0});
+var mat32 = new THREE.MeshPhongMaterial( { color: 0x333333, shading: THREE.FlatShading, shininess: 0});
 var mat3 = new THREE.MultiMaterial([mat31, mat32]);
 
 var geom1 = new THREE.CylinderGeometry(width, width, height, sides);
@@ -48,41 +51,17 @@ var geom2 = new THREE.CylinderGeometry(width, width, height, sides);
 var geom3 = new THREE.CylinderGeometry(width, width, height, sides);
 
 var mesh1 = new THREE.Mesh( geom1, mat1 );
-mesh1.position.y += height + gap;
+mesh1.position.y += height + gap + yOffset;
 var mesh2 = new THREE.Mesh( geom2, mat2 );
+mesh2.position.y += yOffset;
 var mesh3 = new THREE.Mesh( geom3, mat3 );
-mesh3.position.y -= height + gap;
+mesh3.position.y -= height + gap - yOffset;
 
 for(var i = 0; i <  mesh1.geometry.faces.length; i++) {
     mesh1.geometry.faces[i].materialIndex = 0;
     mesh2.geometry.faces[i].materialIndex = 0;
     mesh3.geometry.faces[i].materialIndex = 0;
 }
-
-mesh1.geometry.faces[14].materialIndex = 1;
-mesh2.geometry.faces[14].materialIndex = 1;
-mesh3.geometry.faces[14].materialIndex = 1;
-mesh1.geometry.faces[15].materialIndex = 1;
-mesh2.geometry.faces[15].materialIndex = 1;
-mesh3.geometry.faces[15].materialIndex = 1;
-mesh1.geometry.faces[6].materialIndex = 1;
-mesh2.geometry.faces[6].materialIndex = 1;
-mesh3.geometry.faces[6].materialIndex = 1;
-mesh1.geometry.faces[7].materialIndex = 1;
-mesh2.geometry.faces[7].materialIndex = 1;
-mesh3.geometry.faces[7].materialIndex = 1;
-mesh1.geometry.faces[10].materialIndex = 1;
-mesh2.geometry.faces[10].materialIndex = 1;
-mesh3.geometry.faces[10].materialIndex = 1;
-mesh1.geometry.faces[11].materialIndex = 1;
-mesh2.geometry.faces[11].materialIndex = 1;
-mesh3.geometry.faces[11].materialIndex = 1;
-mesh1.geometry.faces[2].materialIndex = 1;
-mesh2.geometry.faces[2].materialIndex = 1;
-mesh3.geometry.faces[2].materialIndex = 1;
-mesh1.geometry.faces[3].materialIndex = 1;
-mesh2.geometry.faces[3].materialIndex = 1;
-mesh3.geometry.faces[3].materialIndex = 1;
 
 //use the identifier on the mesh to get from the object to their velocities
 var velocities = {};
@@ -156,17 +135,34 @@ function playClickSound(oldpos, newpos) {
         //let's just make a new one and throw is away each time :)
         //how about that obama??
         var audio = new THREE.Audio( audioListener );
-        audio.setBuffer(buffer);
+        audio.setBuffer(clickBuffer);
         audio.setVolume(0.2);
         audio.setPlaybackRate(2);
         audio.play();
     }    
 }
 
-(function animate() {
+var oldtime = 0;
+var accumulator = 0;
+(function animate(time) {
+    var dt = time - oldtime;
+    accumulator += dt;
+    if (accumulator > mspb) {
+        accumulator -= mspb;
+        
+        var audio = new THREE.Audio( audioListener );
+        audio.setBuffer(metronomeBuffer);
+        audio.setVolume(0.1);
+        audio.setPlaybackRate(2);
+        audio.play();
+        console.log("beep");
+    }
+    
+    oldtime = time;
+    
     requestAnimationFrame( animate );
 
-    if (ready) {
+    if (ready1 && ready2) {
         fingerDownFactor[mesh1.uuid] = 0;
         fingerDownFactor[mesh2.uuid] = 0;
         fingerDownFactor[mesh3.uuid] = 0;
@@ -211,4 +207,4 @@ function playClickSound(oldpos, newpos) {
     }
     
 
-})();
+})(0);

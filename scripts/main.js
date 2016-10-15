@@ -23,7 +23,7 @@ loader.load('metronome.ogg',
     function (audioBuffer) {
         metronomeBuffer = audioBuffer;
         ready2 = true;
-    }, function(){}, function(){});
+    }, function(){}, function(){console.log('An error happened that was a more different error');});
 
 var bpm = 100;
 var mspb = (60 * 1000)/ bpm;
@@ -145,6 +145,9 @@ function playClickSound(oldpos, newpos) {
 var oldtime = 0;
 var accumulator = 0;
 (function animate(time) {
+    requestAnimationFrame( animate );
+
+    if (ready1 && ready2) {
     var dt = time - oldtime;
     accumulator += dt;
     if (accumulator > mspb) {
@@ -160,9 +163,6 @@ var accumulator = 0;
     
     oldtime = time;
     
-    requestAnimationFrame( animate );
-
-    if (ready1 && ready2) {
         fingerDownFactor[mesh1.uuid] = 0;
         fingerDownFactor[mesh2.uuid] = 0;
         fingerDownFactor[mesh3.uuid] = 0;

@@ -28,7 +28,7 @@ loader.load('metronome.ogg',
 var bpm = 100;
 var mspb = (60 * 1000)/ bpm;
 
-var yOffset = 50;
+var yOffset = -50;
 var sides = 8;
 var width = 350;
 var height = 200;

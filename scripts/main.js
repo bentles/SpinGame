@@ -25,10 +25,10 @@ loader.load('metronome.ogg',
         ready2 = true;
     }, function(){}, function(){console.log('An error happened that was a more different error');});
 
-var bpm = 100;
+var bpm = 120;
 var mspb = (60 * 1000)/ bpm;
 
-var yOffset = -50;
+var yOffset = -100;
 var sides = 8;
 var width = 350;
 var height = 200;

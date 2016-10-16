@@ -41974,12 +41974,10 @@ var accumulator = 0;
     var ctx = canvas.getContext("2d");
 
     ctx.beginPath();
-    ctx.arc(window.innerWidth / 2, 110, 60, 0, 2 * Math.PI, false);    
-    ctx.strokeStyle = '#ffffff';
+    ctx.arc(window.innerWidth - 110, 110, 60, 0, 2 * Math.PI, false);    
     ctx.lineWidth = 20;
-    ctx.fillStyle = 'white';
+    ctx.fillStyle = '#cccccc';
     ctx.fill();
-    ctx.stroke();
 
     drawArrow(ctx, (time / 4)  % window.innerWidth, 60, 100, 20, "#11ee11", false);
     drawArrow(ctx, ((time / 4) + (window.innerWidth / 3))  % window.innerWidth, 60, 100, 20, "#ee1111");
@@ -41994,10 +41992,10 @@ var accumulator = 0;
     if (accumulator > mspb) {
         accumulator -= mspb;
         
-        var audio = new THREE.Audio( audioListener );
-        audio.setBuffer(metronomeBuffer);
-        audio.setVolume(0.1);
-        audio.setPlaybackRate(2);
+        //var audio = new THREE.Audio( audioListener );
+        //audio.setBuffer(metronomeBuffer);
+        //audio.setVolume(0.1);
+       // audio.setPlaybackRate(2);
         // audio.play();
     }
     

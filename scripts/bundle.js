@@ -41936,25 +41936,33 @@ function playClickSound(oldpos, newpos) {
     }    
 }
 
-function drawArrow(ctx, x, y, height, width, color) {
+function drawArrow(ctx, x, y, height, thickness, color, pointLeft) {
+    //default args for some reason
     ctx.fillStyle = color || "green";
-
+    pointLeft = pointLeft === undefined ? true : pointLeft;
     x = x || 0;
     y = y || 0;
-    height = height || 60;
-    width = width || 35;
+    thickness = thickness || 10; //not really thickness, if this number is x, that's sqrt(2*x^2)
+    height = height || 60;  
+    
     var halfheight = height / 2;
-    var thickness = 10; //not really thickness, if this number is x, that's sqrt(2*x^2)
+    width = height / 2 + thickness;
+    var mirror = pointLeft ? 1 : -1;
+    var mirrorOffset = pointLeft ? 0 : width;
     
     // Filled triangle
     ctx.beginPath();
-    ctx.moveTo(x + width - thickness, y);
-    ctx.lineTo(x, y + halfheight);
-    ctx.lineTo(x + width - thickness, y + height);
-    ctx.lineTo(x + width, y + height - thickness);
-    ctx.lineTo(x + 2*thickness, y + halfheight);
-    ctx.lineTo(x + width, y + thickness);
-    ctx.fill();    
+    ctx.moveTo(x + mirrorify(width - thickness), y);
+    ctx.lineTo(x + mirrorify(0), y + halfheight);
+    ctx.lineTo(x + mirrorify(width - thickness), y + height);
+    ctx.lineTo(x + mirrorify(width), y + height - thickness);
+    ctx.lineTo(x + mirrorify(2 * thickness), y + halfheight);
+    ctx.lineTo(x + mirrorify(width), y + thickness);
+    ctx.fill();
+
+    function mirrorify(a) {
+        return a * mirror + mirrorOffset;
+    }
 }
 
 var oldtime = 0;
@@ -41973,14 +41981,10 @@ var accumulator = 0;
     ctx.fill();
     ctx.stroke();
 
-    drawArrow(ctx, (time / 4)  % window.innerWidth, 60, 100, 60, "green");
-    drawArrow(ctx, ((time / 4) + 25)  % window.innerWidth , 60, 100, 60, "green");
-
-    drawArrow(ctx, ((time / 4) + (window.innerWidth / 3))  % window.innerWidth, 60, 100, 60, "red");
-    drawArrow(ctx, ((time / 4) + (window.innerWidth / 3) + 25)  % window.innerWidth , 60, 100, 60, "red");
-
-    drawArrow(ctx, ((time / 4) + (window.innerWidth / 3) * 2)  % window.innerWidth, 60, 100, 60, "blue");
-    drawArrow(ctx, ((time / 4) + (window.innerWidth / 3) * 2 + 25)  % window.innerWidth , 60, 100, 60, "blue");  
+    drawArrow(ctx, (time / 4)  % window.innerWidth, 60, 100, 20, "#11ee11", false);
+    drawArrow(ctx, ((time / 4) + (window.innerWidth / 3))  % window.innerWidth, 60, 100, 20, "#ee1111");
+    drawArrow(ctx, ((time / 4) + (window.innerWidth / 3) + 45 )  % window.innerWidth, 60, 100, 20, "#ee1111");
+    drawArrow(ctx, ((time / 4) + (window.innerWidth / 3) * 2)  % window.innerWidth, 60, 100, 20, "#1111ee");
     
     requestAnimationFrame( animate );
 
@@ -41994,8 +41998,7 @@ var accumulator = 0;
         audio.setBuffer(metronomeBuffer);
         audio.setVolume(0.1);
         audio.setPlaybackRate(2);
-     //   audio.play();
-    //    console.log("beep");
+        // audio.play();
     }
     
     oldtime = time;

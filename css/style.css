@@ -6,3 +6,9 @@ body {
 canvas {
     display: block;
 }
+
+#overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+}

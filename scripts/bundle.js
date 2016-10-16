@@ -41936,9 +41936,52 @@ function playClickSound(oldpos, newpos) {
     }    
 }
 
+function drawArrow(ctx, x, y, height, width, color) {
+    ctx.fillStyle = color || "green";
+
+    x = x || 0;
+    y = y || 0;
+    height = height || 60;
+    width = width || 35;
+    var halfheight = height / 2;
+    var thickness = 10; //not really thickness, if this number is x, that's sqrt(2*x^2)
+    
+    // Filled triangle
+    ctx.beginPath();
+    ctx.moveTo(x + width - thickness, y);
+    ctx.lineTo(x, y + halfheight);
+    ctx.lineTo(x + width - thickness, y + height);
+    ctx.lineTo(x + width, y + height - thickness);
+    ctx.lineTo(x + 2*thickness, y + halfheight);
+    ctx.lineTo(x + width, y + thickness);
+    ctx.fill();    
+}
+
 var oldtime = 0;
 var accumulator = 0;
 (function animate(time) {
+    var canvas = document.getElementById("overlay");
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerWidth;
+    var ctx = canvas.getContext("2d");
+
+    ctx.beginPath();
+    ctx.arc(window.innerWidth / 2, 110, 60, 0, 2 * Math.PI, false);    
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 20;
+    ctx.fillStyle = 'white';
+    ctx.fill();
+    ctx.stroke();
+
+    drawArrow(ctx, (time / 4)  % window.innerWidth, 60, 100, 60, "green");
+    drawArrow(ctx, ((time / 4) + 25)  % window.innerWidth , 60, 100, 60, "green");
+
+    drawArrow(ctx, ((time / 4) + (window.innerWidth / 3))  % window.innerWidth, 60, 100, 60, "red");
+    drawArrow(ctx, ((time / 4) + (window.innerWidth / 3) + 25)  % window.innerWidth , 60, 100, 60, "red");
+
+    drawArrow(ctx, ((time / 4) + (window.innerWidth / 3) * 2)  % window.innerWidth, 60, 100, 60, "blue");
+    drawArrow(ctx, ((time / 4) + (window.innerWidth / 3) * 2 + 25)  % window.innerWidth , 60, 100, 60, "blue");  
+    
     requestAnimationFrame( animate );
 
     if (ready1 && ready2) {
@@ -41951,8 +41994,8 @@ var accumulator = 0;
         audio.setBuffer(metronomeBuffer);
         audio.setVolume(0.1);
         audio.setPlaybackRate(2);
-        audio.play();
-        console.log("beep");
+     //   audio.play();
+    //    console.log("beep");
     }
     
     oldtime = time;
@@ -41975,11 +42018,11 @@ var accumulator = 0;
         var modulus2 = mesh2.rotation.y % sideArc;
         var modulus3 = mesh3.rotation.y % sideArc;
         var springThing1 =  mesh1.rotation.y < 0 ? halfSideArc + modulus1  : modulus1 - halfSideArc; 
-        velocities[mesh1.uuid] -=  velocities[mesh1.uuid]*0.3 + springThing1 * 20 ;         
+        velocities[mesh1.uuid] -=  velocities[mesh1.uuid]*0.4 + springThing1 * 30 ;         
         var springThing2 =  mesh2.rotation.y < 0 ? halfSideArc + modulus2  : modulus2 - halfSideArc; 
-        velocities[mesh2.uuid] -=  velocities[mesh2.uuid]*0.3 + springThing2 * 20 ;
+        velocities[mesh2.uuid] -=  velocities[mesh2.uuid]*0.4 + springThing2 * 30 ;
         var springThing3 =  mesh3.rotation.y < 0 ? halfSideArc + modulus3  : modulus3 - halfSideArc; 
-        velocities[mesh3.uuid] -=  velocities[mesh3.uuid]*0.3 + springThing3 * 20 ;         
+        velocities[mesh3.uuid] -=  velocities[mesh3.uuid]*0.4 + springThing3 * 30 ;         
         
         playClickSound( oldpos1, mesh1.rotation.y );
         playClickSound( oldpos2, mesh2.rotation.y );

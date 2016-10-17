@@ -41828,16 +41828,16 @@ var width = 350;
 var height = 200;
 var gap = 20;
 
-var mat11 = new THREE.MeshPhongMaterial( { color: 0xee1111 , shading: THREE.FlatShading, shininess: 0});
-var mat12 = new THREE.MeshPhongMaterial( { color: 0x333333, shading: THREE.FlatShading, shininess: 0});
+var mat11 = new THREE.MeshPhongMaterial( { color: 0xFF3F35 , shading: THREE.FlatShading, shininess: 0});
+var mat12 = new THREE.MeshPhongMaterial( { color: 0x9F201E, shading: THREE.FlatShading, shininess: 0});
 var mat1 = new THREE.MultiMaterial([mat11, mat12]);
 
-var mat21 = new THREE.MeshPhongMaterial( { color: 0x11ee11, shading: THREE.FlatShading, shininess: 0});
-var mat22 = new THREE.MeshPhongMaterial( { color: 0x333333, shading: THREE.FlatShading, shininess: 0});
+var mat21 = new THREE.MeshPhongMaterial( { color: 0x23BE21, shading: THREE.FlatShading, shininess: 0});
+var mat22 = new THREE.MeshPhongMaterial( { color: 0x235B17, shading: THREE.FlatShading, shininess: 0});
 var mat2 = new THREE.MultiMaterial([mat21, mat22]);
 
-var mat31 = new THREE.MeshPhongMaterial( { color: 0x1111ee, shading: THREE.FlatShading, shininess: 0});
-var mat32 = new THREE.MeshPhongMaterial( { color: 0x333333, shading: THREE.FlatShading, shininess: 0});
+var mat31 = new THREE.MeshPhongMaterial( { color: 0x494DB7, shading: THREE.FlatShading, shininess: 0});
+var mat32 = new THREE.MeshPhongMaterial( { color: 0x192174, shading: THREE.FlatShading, shininess: 0});
 var mat3 = new THREE.MultiMaterial([mat31, mat32]);
 
 var geom1 = new THREE.CylinderGeometry(width, width, height, sides);
@@ -41852,9 +41852,9 @@ var mesh3 = new THREE.Mesh( geom3, mat3 );
 mesh3.position.y -= height + gap - yOffset;
 
 for(var i = 0; i <  mesh1.geometry.faces.length; i++) {
-    mesh1.geometry.faces[i].materialIndex = 0;
-    mesh2.geometry.faces[i].materialIndex = 0;
-    mesh3.geometry.faces[i].materialIndex = 0;
+    mesh1.geometry.faces[i].materialIndex = i % 4 < 2 ? 0 : 1;
+    mesh2.geometry.faces[i].materialIndex = i % 4 < 2 ? 0 : 1;
+    mesh3.geometry.faces[i].materialIndex = i % 4 < 2 ? 0 : 1;
 }
 
 //use the identifier on the mesh to get from the object to their velocities
@@ -41865,7 +41865,9 @@ velocities[mesh3.uuid] = 0;
 var fingerDownFactor = {};
 
 var directionalLight = new THREE.DirectionalLight( 0xffffff, 0.6 );
-directionalLight.position.set( 1, 0, 5 );
+directionalLight.position.set( -10, 0, 5 );
+var directionalLight2 = new THREE.DirectionalLight( 0xffffff, 0.6 );
+directionalLight2.position.set( 10, 0, 5 );
 
 var prevPosisions = [];
 
@@ -41875,6 +41877,7 @@ scene.add( mesh1 );
 scene.add( mesh2 );
 scene.add( mesh3 );
 scene.add( directionalLight );
+scene.add( directionalLight2 );
 
 var renderer = new THREE.WebGLRenderer({antialias : true});
 renderer.setSize( window.innerWidth, window.innerHeight );
@@ -41930,7 +41933,7 @@ function playClickSound(oldpos, newpos) {
         //how about that obama??
         var audio = new THREE.Audio( audioListener );
         audio.setBuffer(clickBuffer);
-        audio.setVolume(0.2);
+        audio.setVolume(0.6);
         audio.setPlaybackRate(2);
         audio.play();
     }    
@@ -42005,30 +42008,6 @@ var accumulator = 0;
         fingerDownFactor[mesh2.uuid] = 0;
         fingerDownFactor[mesh3.uuid] = 0;
 
-        var oldpos1 = mesh1.rotation.y;
-        var oldpos2 = mesh2.rotation.y;
-        var oldpos3 = mesh3.rotation.y;    
-
-        mesh1.rotation.y += (velocities[mesh1.uuid] / window.innerWidth) * 0.6; 
-        mesh2.rotation.y += (velocities[mesh2.uuid] / window.innerWidth) * 0.6; 
-        mesh3.rotation.y += (velocities[mesh3.uuid] / window.innerWidth) * 0.6;
-
-        var sideArc = (2*Math.PI / 8);
-        var halfSideArc = sideArc / 2;
-        var modulus1 = mesh1.rotation.y % sideArc;
-        var modulus2 = mesh2.rotation.y % sideArc;
-        var modulus3 = mesh3.rotation.y % sideArc;
-        var springThing1 =  mesh1.rotation.y < 0 ? halfSideArc + modulus1  : modulus1 - halfSideArc; 
-        velocities[mesh1.uuid] -=  velocities[mesh1.uuid]*0.4 + springThing1 * 30 ;         
-        var springThing2 =  mesh2.rotation.y < 0 ? halfSideArc + modulus2  : modulus2 - halfSideArc; 
-        velocities[mesh2.uuid] -=  velocities[mesh2.uuid]*0.4 + springThing2 * 30 ;
-        var springThing3 =  mesh3.rotation.y < 0 ? halfSideArc + modulus3  : modulus3 - halfSideArc; 
-        velocities[mesh3.uuid] -=  velocities[mesh3.uuid]*0.4 + springThing3 * 30 ;         
-        
-        playClickSound( oldpos1, mesh1.rotation.y );
-        playClickSound( oldpos2, mesh2.rotation.y );
-        playClickSound( oldpos3, mesh3.rotation.y );
-        
         //which objects are you touching right now?
         touches.forEach(function(touch) {
             if (touch.object) {
@@ -42036,10 +42015,43 @@ var accumulator = 0;
                 fingerDownFactor[touch.object.uuid] = 0.3;
             }
         });    
+
+        var oldpos1 = mesh1.rotation.y;
+        var oldpos2 = mesh2.rotation.y;
+        var oldpos3 = mesh3.rotation.y;    
+
+        mesh1.rotation.y += (velocities[mesh1.uuid] / window.innerWidth) * 0.3; 
+        mesh2.rotation.y += (velocities[mesh2.uuid] / window.innerWidth) * 0.3; 
+        mesh3.rotation.y += (velocities[mesh3.uuid] / window.innerWidth) * 0.3;
+
+        function magic(x) {
+            return 1 / (Math.sign(x) * (x*x + 1/(x*x)));
+        }
+
+        var sideArc = (2*Math.PI / 8);
+        var halfSideArc = sideArc / 2;
+        var modulus1 = mesh1.rotation.y % sideArc;
+        var modulus2 = mesh2.rotation.y % sideArc;
+        var modulus3 = mesh3.rotation.y % sideArc;
+        var displacement1 =  mesh1.rotation.y < 0 ? halfSideArc + modulus1  : modulus1 - halfSideArc;
+        velocities[mesh1.uuid] -= fingerDownFactor[mesh1.uuid] ? 0 :
+            velocities[mesh1.uuid]*0.4 + magic(displacement1 * 3) * 200;  
+        var displacement2 =  mesh2.rotation.y < 0 ? halfSideArc + modulus2  : modulus2 - halfSideArc; 
+        velocities[mesh2.uuid] -= fingerDownFactor[mesh2.uuid] ? 0 :
+            velocities[mesh2.uuid]*0.4 + magic(displacement2 * 3) * 200; 
+        var displacement3 =  mesh3.rotation.y < 0 ? halfSideArc + modulus3  : modulus3 - halfSideArc; 
+        velocities[mesh3.uuid] -=  fingerDownFactor[mesh3.uuid] ? 0 :
+            velocities[mesh3.uuid]*0.4 + magic(displacement3 * 3) * 200;       
+        
+        playClickSound( oldpos1, mesh1.rotation.y );
+        playClickSound( oldpos2, mesh2.rotation.y );
+        playClickSound( oldpos3, mesh3.rotation.y );
+        
+      
         //slow down sonny
-        velocities[mesh1.uuid] *= 0.96 - fingerDownFactor[mesh1.uuid];
-        velocities[mesh2.uuid] *= 0.96 - fingerDownFactor[mesh2.uuid];
-        velocities[mesh3.uuid] *= 0.96 - fingerDownFactor[mesh3.uuid];
+        velocities[mesh1.uuid] *= 0.98 - fingerDownFactor[mesh1.uuid];
+        velocities[mesh2.uuid] *= 0.98 - fingerDownFactor[mesh2.uuid];
+        velocities[mesh3.uuid] *= 0.98 - fingerDownFactor[mesh3.uuid];
         
         renderer.render( scene, camera );
     }

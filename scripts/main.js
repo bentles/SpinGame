@@ -231,7 +231,7 @@ var accumulator = 0;
         mesh3.rotation.y += (velocities[mesh3.uuid] / window.innerWidth) * 0.3;
 
         function magic(x) {
-            return 1 / (Math.sign(x) * (x*x + 1/(x*x)));
+            return 1 / (Math.sign(x) * (x*x + 1/(x*x))) || 0; //account for NaN at x = 0
         }
 
         var sideArc = (2*Math.PI / 8);

@@ -1,4 +1,7 @@
 var THREE = require('./lib/three.js');
+var makeAction = require('./action.js');
+
+
 
 var scene = new THREE.Scene();
 var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 10000 );
@@ -135,7 +138,7 @@ function playClickSound(oldpos, newpos) {
     if(Math.floor(oldpos/clickThreshold) !== Math.floor(newpos /clickThreshold))
     {
         //since these things like to get stuck with isPlaying true
-        //let's just make a new one and throw is away each time :)
+        //let's just make a new one and throw it away each time :)
         //how about that obama??
         var audio = new THREE.Audio( audioListener );
         audio.setBuffer(clickBuffer);
@@ -145,71 +148,62 @@ function playClickSound(oldpos, newpos) {
     }    
 }
 
-function drawArrow(ctx, x, y, height, thickness, color, pointLeft) {
-    //default args for some reason
-    ctx.fillStyle = color || "green";
-    pointLeft = pointLeft === undefined ? true : pointLeft;
-    x = x || 0;
-    y = y || 0;
-    thickness = thickness || 10; //not really thickness, if this number is x, that's sqrt(2*x^2)
-    height = height || 60;  
-    
-    var halfheight = height / 2;
-    width = height / 2 + thickness;
-    var mirror = pointLeft ? 1 : -1;
-    var mirrorOffset = pointLeft ? 0 : width;
-    
-    // Filled triangle
-    ctx.beginPath();
-    ctx.moveTo(x + mirrorify(width - thickness), y);
-    ctx.lineTo(x + mirrorify(0), y + halfheight);
-    ctx.lineTo(x + mirrorify(width - thickness), y + height);
-    ctx.lineTo(x + mirrorify(width), y + height - thickness);
-    ctx.lineTo(x + mirrorify(2 * thickness), y + halfheight);
-    ctx.lineTo(x + mirrorify(width), y + thickness);
-    ctx.fill();
+var canvas = document.getElementById("overlay");
+canvas.width = window.innerWidth;
+canvas.height = window.innerWidth;
+var ctx = canvas.getContext("2d");
+var actions = [];
 
-    function mirrorify(a) {
-        return a * mirror + mirrorOffset;
-    }
+function getColor() {
+    var rand = Math.random() * 3;
+    if (rand < 1) return "green";
+    if (rand < 2) return "blue";
+    return "red";
+}
+
+function getLeftness() {
+    return Math.random() < 0.5;
+}
+
+for(var i = 0; i < 100; i++) {
+    actions[i] = makeAction(ctx, { color: getColor(), left: getLeftness()}, (i + 1) * 1500, 0.7, 0.0002, {});
 }
 
 var oldtime = 0;
 var accumulator = 0;
 (function animate(time) {
-    var canvas = document.getElementById("overlay");
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerWidth;
-    var ctx = canvas.getContext("2d");
+//    console.log(time);
 
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
     ctx.beginPath();
     ctx.arc(window.innerWidth - 110, 110, 60, 0, 2 * Math.PI, false);    
     ctx.lineWidth = 20;
     ctx.fillStyle = '#cccccc';
     ctx.fill();
-
-    drawArrow(ctx, (time / 4)  % window.innerWidth, 60, 100, 20, "#11ee11", false);
-    drawArrow(ctx, ((time / 4) + (window.innerWidth / 3))  % window.innerWidth, 60, 100, 20, "#ee1111");
-    drawArrow(ctx, ((time / 4) + (window.innerWidth / 3) + 45 )  % window.innerWidth, 60, 100, 20, "#ee1111");
-    drawArrow(ctx, ((time / 4) + (window.innerWidth / 3) * 2)  % window.innerWidth, 60, 100, 20, "#1111ee");
     
     requestAnimationFrame( animate );
 
     if (ready1 && ready2) {
-    var dt = time - oldtime;
-    accumulator += dt;
-    if (accumulator > mspb) {
-        accumulator -= mspb;
+
+        for(var i = 0; i < actions.length; i++) {
+            actions[i].draw(time);
+        }
         
-        //var audio = new THREE.Audio( audioListener );
-        //audio.setBuffer(metronomeBuffer);
-        //audio.setVolume(0.1);
-       // audio.setPlaybackRate(2);
-        // audio.play();
-    }
-    
-    oldtime = time;
-    
+        var dt = time - oldtime;
+        accumulator += dt;
+        if (accumulator > mspb) {
+            accumulator -= mspb;
+            
+            //var audio = new THREE.Audio( audioListener );
+            //audio.setBuffer(metronomeBuffer);
+            //audio.setVolume(0.1);
+            //audio.setPlaybackRate(2);
+            //audio.play();
+        }
+        
+        oldtime = time;
+        
         fingerDownFactor[mesh1.uuid] = 0;
         fingerDownFactor[mesh2.uuid] = 0;
         fingerDownFactor[mesh3.uuid] = 0;

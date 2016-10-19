@@ -1,4 +1,74 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+//an action is some movement the player must perform
+
+//okay I need to know 4 things:
+// 1 - what action the player must perform
+// 2 - what position must the action be drawn at the time the player should perform it
+// 3 - what time the action needs to be at that position
+// 4 - what speed the action should approach the goal at so I know when to start drawing it
+function makeAction(ctx,
+                    action, //some way of describing the action
+                    actionTime, //some time in ms
+                    actionPos, //a value s.t. -1 and 1 will draw the center of the shape on each edge of the screen
+                    actionSpeed, //how many much of the 2 units of screen space to move per ms
+                    options)
+{
+    var _ctx = ctx;
+    var y = options.ypos === undefined? 60 : options.ypos;
+    var height = options.height === undefined? 100 : options.height;
+    //ranges from -1 to 1 lol why did I do this xD
+
+    function draw(time) {
+        var x = getPos(time);
+
+        if (!(Math.abs(x) > 1.2)) //ok this might not be offscreen (I guess I should actually work it out lol)
+        {
+            drawChevron(_ctx, (x / 2  + 0.5) * window.innerWidth, y, height, 20, action.color, action.left);
+            return true;
+        }
+        return false;
+    }
+
+    function getPos(time) {
+        return actionPos + (time - actionTime) * actionSpeed;
+    }
+
+    return { draw : draw };
+}
+
+
+function drawChevron(ctx, x, y, height, thickness, color, pointLeft) {
+    //default args for some reason
+    ctx.fillStyle = color || "green";
+    pointLeft = pointLeft === undefined ? true : pointLeft;
+    x = x || 0;
+    y = y || 0;
+    thickness = thickness || 20; //not really thickness, if this number is x, that's sqrt(2*x^2)
+    height = height || 60;  
+    
+    var halfheight = height / 2;
+    var width = height / 2 + thickness;
+    var mirror = pointLeft ? 1 : -1;
+    var mirrorOffset = pointLeft ? 0 : width;
+    
+    // Filled chevron
+    ctx.beginPath();
+    ctx.moveTo(x + mirrorify(width - thickness), y);
+    ctx.lineTo(x + mirrorify(0), y + halfheight);
+    ctx.lineTo(x + mirrorify(width - thickness), y + height);
+    ctx.lineTo(x + mirrorify(width), y + height - thickness);
+    ctx.lineTo(x + mirrorify(2 * thickness), y + halfheight);
+    ctx.lineTo(x + mirrorify(width), y + thickness);
+    ctx.fill();
+
+    function mirrorify(a) {
+        return a * mirror + mirrorOffset;
+    }
+}
+
+module.exports = makeAction;
+
+},{}],2:[function(require,module,exports){
 (function (global, factory) {
     typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
     typeof define === 'function' && define.amd ? define(['exports'], factory) :
@@ -41791,8 +41861,11 @@
     Object.defineProperty(exports, '__esModule', { value: true });
 
 })));
-},{}],2:[function(require,module,exports){
+},{}],3:[function(require,module,exports){
 var THREE = require('./lib/three.js');
+var makeAction = require('./action.js');
+
+
 
 var scene = new THREE.Scene();
 var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 10000 );
@@ -41929,7 +42002,7 @@ function playClickSound(oldpos, newpos) {
     if(Math.floor(oldpos/clickThreshold) !== Math.floor(newpos /clickThreshold))
     {
         //since these things like to get stuck with isPlaying true
-        //let's just make a new one and throw is away each time :)
+        //let's just make a new one and throw it away each time :)
         //how about that obama??
         var audio = new THREE.Audio( audioListener );
         audio.setBuffer(clickBuffer);
@@ -41939,71 +42012,62 @@ function playClickSound(oldpos, newpos) {
     }    
 }
 
-function drawArrow(ctx, x, y, height, thickness, color, pointLeft) {
-    //default args for some reason
-    ctx.fillStyle = color || "green";
-    pointLeft = pointLeft === undefined ? true : pointLeft;
-    x = x || 0;
-    y = y || 0;
-    thickness = thickness || 10; //not really thickness, if this number is x, that's sqrt(2*x^2)
-    height = height || 60;  
-    
-    var halfheight = height / 2;
-    width = height / 2 + thickness;
-    var mirror = pointLeft ? 1 : -1;
-    var mirrorOffset = pointLeft ? 0 : width;
-    
-    // Filled triangle
-    ctx.beginPath();
-    ctx.moveTo(x + mirrorify(width - thickness), y);
-    ctx.lineTo(x + mirrorify(0), y + halfheight);
-    ctx.lineTo(x + mirrorify(width - thickness), y + height);
-    ctx.lineTo(x + mirrorify(width), y + height - thickness);
-    ctx.lineTo(x + mirrorify(2 * thickness), y + halfheight);
-    ctx.lineTo(x + mirrorify(width), y + thickness);
-    ctx.fill();
+var canvas = document.getElementById("overlay");
+canvas.width = window.innerWidth;
+canvas.height = window.innerWidth;
+var ctx = canvas.getContext("2d");
+var actions = [];
 
-    function mirrorify(a) {
-        return a * mirror + mirrorOffset;
-    }
+function getColor() {
+    var rand = Math.random() * 3;
+    if (rand < 1) return "green";
+    if (rand < 2) return "blue";
+    return "red";
+}
+
+function getLeftness() {
+    return Math.random() < 0.5;
+}
+
+for(var i = 0; i < 100; i++) {
+    actions[i] = makeAction(ctx, { color: getColor(), left: getLeftness()}, (i + 1) * 1500, 0.7, 0.0002, {});
 }
 
 var oldtime = 0;
 var accumulator = 0;
 (function animate(time) {
-    var canvas = document.getElementById("overlay");
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerWidth;
-    var ctx = canvas.getContext("2d");
+//    console.log(time);
 
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
     ctx.beginPath();
     ctx.arc(window.innerWidth - 110, 110, 60, 0, 2 * Math.PI, false);    
     ctx.lineWidth = 20;
     ctx.fillStyle = '#cccccc';
     ctx.fill();
-
-    drawArrow(ctx, (time / 4)  % window.innerWidth, 60, 100, 20, "#11ee11", false);
-    drawArrow(ctx, ((time / 4) + (window.innerWidth / 3))  % window.innerWidth, 60, 100, 20, "#ee1111");
-    drawArrow(ctx, ((time / 4) + (window.innerWidth / 3) + 45 )  % window.innerWidth, 60, 100, 20, "#ee1111");
-    drawArrow(ctx, ((time / 4) + (window.innerWidth / 3) * 2)  % window.innerWidth, 60, 100, 20, "#1111ee");
     
     requestAnimationFrame( animate );
 
     if (ready1 && ready2) {
-    var dt = time - oldtime;
-    accumulator += dt;
-    if (accumulator > mspb) {
-        accumulator -= mspb;
+
+        for(var i = 0; i < actions.length; i++) {
+            actions[i].draw(time);
+        }
         
-        //var audio = new THREE.Audio( audioListener );
-        //audio.setBuffer(metronomeBuffer);
-        //audio.setVolume(0.1);
-       // audio.setPlaybackRate(2);
-        // audio.play();
-    }
-    
-    oldtime = time;
-    
+        var dt = time - oldtime;
+        accumulator += dt;
+        if (accumulator > mspb) {
+            accumulator -= mspb;
+            
+            //var audio = new THREE.Audio( audioListener );
+            //audio.setBuffer(metronomeBuffer);
+            //audio.setVolume(0.1);
+            //audio.setPlaybackRate(2);
+            //audio.play();
+        }
+        
+        oldtime = time;
+        
         fingerDownFactor[mesh1.uuid] = 0;
         fingerDownFactor[mesh2.uuid] = 0;
         fingerDownFactor[mesh3.uuid] = 0;
@@ -42059,7 +42123,7 @@ var accumulator = 0;
 
 })(0);
 
-},{"./lib/three.js":1,"./touches.js":3}],3:[function(require,module,exports){
+},{"./action.js":1,"./lib/three.js":2,"./touches.js":4}],4:[function(require,module,exports){
 var THREE = require('./lib/three.js');
 
 function createTouches(camera, scene) {
@@ -42102,4 +42166,4 @@ function createTouches(camera, scene) {
 
 module.exports = createTouches;
 
-},{"./lib/three.js":1}]},{},[2,3,1]);
+},{"./lib/three.js":2}]},{},[3,4,1,2]);

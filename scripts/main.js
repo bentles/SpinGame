@@ -166,7 +166,7 @@ function getLeftness() {
 }
 
 for(var i = 0; i < 100; i++) {
-    actions[i] = makeAction(ctx, { color: getColor(), left: getLeftness()}, (i + 1) * 1500, 0.7, 0.0002, {});
+    actions[i] = makeAction(ctx, { color: getColor(), left: getLeftness()}, (i + 1) * 1000, 0.7, 0.0007, {});
 }
 
 var oldtime = 0;

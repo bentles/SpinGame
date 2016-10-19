@@ -22,7 +22,9 @@ function makeAction(ctx,
 
         if (!(Math.abs(x) > 1.2)) //ok this might not be offscreen (I guess I should actually work it out lol)
         {
-            drawChevron(_ctx, (x / 2  + 0.5) * window.innerWidth, y, height, 20, action.color, action.left);
+            var fill = time > actionTime;
+            
+            drawChevron(_ctx, (x / 2  + 0.5) * window.innerWidth, y, height, 20, action.color, action.left, fill);
             return true;
         }
         return false;
@@ -36,9 +38,10 @@ function makeAction(ctx,
 }
 
 
-function drawChevron(ctx, x, y, height, thickness, color, pointLeft) {
+function drawChevron(ctx, x, y, height, thickness, color, pointLeft, fill) {
     //default args for some reason
     ctx.fillStyle = color || "green";
+    ctx.strokeStyle = color || "green";
     pointLeft = pointLeft === undefined ? true : pointLeft;
     x = x || 0;
     y = y || 0;
@@ -58,7 +61,12 @@ function drawChevron(ctx, x, y, height, thickness, color, pointLeft) {
     ctx.lineTo(x + mirrorify(width), y + height - thickness);
     ctx.lineTo(x + mirrorify(2 * thickness), y + halfheight);
     ctx.lineTo(x + mirrorify(width), y + thickness);
-    ctx.fill();
+    ctx.lineTo(x + mirrorify(width - thickness), y);
+    ctx.closePath();
+    ctx.lineWidth = 8;
+    ctx.stroke();
+    if (fill)
+        ctx.fill();
 
     function mirrorify(a) {
         return a * mirror + mirrorOffset;
